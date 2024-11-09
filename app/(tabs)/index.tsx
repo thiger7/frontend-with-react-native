@@ -47,16 +47,6 @@ export default function HomeScreen() {
     setTasks(tasks.filter(task => task.id !== id));
   };
 
-  const renderTask: ListRenderItem<Task> = ({ item }) => {
-    return (
-      <TaskItem
-        item={item}
-        handleEdit={handleEdit}
-        handleDelete={handleDelete}
-      />
-    );
-  };
-
   return (
     <View style={styles.container}>
       <Text style={styles.title}>TODOアプリ</Text>
@@ -66,7 +56,17 @@ export default function HomeScreen() {
         handleSaveTask={handleSaveTask}
         isEditting={isEditting}
       />
-      <FlatList data={tasks} renderItem={renderTask} />
+      <FlatList
+        data={tasks}
+        renderItem={({ item }) => (
+          <TaskItem
+            item={item}
+            handleEdit={handleEdit}
+            handleDelete={handleDelete}
+          />
+        )}
+        keyExtractor={item => item.id}
+      />
     </View>
   );
 }
