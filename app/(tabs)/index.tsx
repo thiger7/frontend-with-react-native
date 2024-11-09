@@ -1,3 +1,4 @@
+import TaskItem from "@/components/TaskItem";
 import { useState } from "react";
 import {
   Text,
@@ -38,33 +39,17 @@ export default function HomeScreen() {
     setTaskText("");
   };
 
-  const handleDelete = (id: string) => {
-    setTasks(tasks.filter(task => task.id !== id));
-  };
-
   const handleEdit = (item: Task) => {
     setTaskText(item.text);
     setIsEditting(item.id);
   };
+  
+  const handleDelete = (id: string) => {
+    setTasks(tasks.filter(task => task.id !== id));
+  };
 
   const renderTask: ListRenderItem<Task> = ({ item }) => {
-    return (
-      <View style={styles.task}>
-        <Text style={styles.taskText}>{item.text}</Text>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity>
-            <Icon name="edit" color="#4caf50" onPress={() => handleEdit(item)}>
-              編集
-            </Icon>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => handleDelete(item.id)}>
-            <Icon name="delete" color="#f44336">
-              削除
-            </Icon>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
+    return <TaskItem item={item} handleEdit={handleEdit} handleDelete={handleDelete} />;
   };
 
   return (
