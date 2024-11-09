@@ -1,4 +1,5 @@
-import TaskItem from "@/components/TaskItem";
+import TaskInput from "@/components/task/TaskInput";
+import TaskItem from "@/components/task/TaskItem";
 import { useState } from "react";
 import {
   Text,
@@ -21,10 +22,8 @@ export default function HomeScreen() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isEditting, setIsEditting] = useState<string | null>(null);
 
-  console.log(taskText);
-
   const handleSaveTask = () => {
-    if(!taskText.trim()) return;
+    if (!taskText.trim()) return;
     if (isEditting) {
       setTasks(
         tasks.map(task =>
@@ -43,30 +42,30 @@ export default function HomeScreen() {
     setTaskText(item.text);
     setIsEditting(item.id);
   };
-  
+
   const handleDelete = (id: string) => {
     setTasks(tasks.filter(task => task.id !== id));
   };
 
   const renderTask: ListRenderItem<Task> = ({ item }) => {
-    return <TaskItem item={item} handleEdit={handleEdit} handleDelete={handleDelete} />;
+    return (
+      <TaskItem
+        item={item}
+        handleEdit={handleEdit}
+        handleDelete={handleDelete}
+      />
+    );
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>TODOアプリ</Text>
-      <TextInput
-        placeholder="タスクを入力"
-        style={styles.input}
-        onChangeText={setTaskText}
-        value={taskText}
+      <TaskInput
+        taskText={taskText}
+        setTaskText={setTaskText}
+        handleSaveTask={handleSaveTask}
+        isEditting={isEditting}
       />
-      <TouchableOpacity style={styles.saveButton} onPress={handleSaveTask}>
-        <Text style={styles.saveButtonText}>
-          {isEditting ? "編集" : "追加"}
-        </Text>
-      </TouchableOpacity>
-
       <FlatList data={tasks} renderItem={renderTask} />
     </View>
   );
