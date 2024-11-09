@@ -1,70 +1,130 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { useState } from "react";
+import {
+  Text,
+  TextInput,
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  FlatList,
+  ListRenderItem,
+} from "react-native";
+import { Icon } from "react-native-elements";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+interface Task {
+  id: string;
+  text: string;
+}
 
 export default function HomeScreen() {
+  const [taskText, setTaskText] = useState<string>("");
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [isEditting, setIsEditting] = useState<string | null>(null);
+
+  console.log(taskText);
+
+  const handleSaveTask = () => {
+    if(!taskText.trim()) return;
+    if (isEditting) {
+      setTasks(
+        tasks.map(task =>
+          task.id === isEditting ? { ...task, text: taskText } : task,
+        ),
+      );
+      setIsEditting(null);
+    } else {
+      const newTask = { id: Date.now().toString(), text: taskText };
+      setTasks([...tasks, newTask]);
+    }
+    setTaskText("");
+  };
+
+  const handleDelete = (id: string) => {
+    setTasks(tasks.filter(task => task.id !== id));
+  };
+
+  const handleEdit = (item: Task) => {
+    setTaskText(item.text);
+    setIsEditting(item.id);
+  };
+
+  const renderTask: ListRenderItem<Task> = ({ item }) => {
+    return (
+      <View style={styles.task}>
+        <Text style={styles.taskText}>{item.text}</Text>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity>
+            <Icon name="edit" color="#4caf50" onPress={() => handleEdit(item)}>
+              編集
+            </Icon>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => handleDelete(item.id)}>
+            <Icon name="delete" color="#f44336">
+              削除
+            </Icon>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <View style={styles.container}>
+      <Text style={styles.title}>TODOアプリ</Text>
+      <TextInput
+        placeholder="タスクを入力"
+        style={styles.input}
+        onChangeText={setTaskText}
+        value={taskText}
+      />
+      <TouchableOpacity style={styles.saveButton} onPress={handleSaveTask}>
+        <Text style={styles.saveButtonText}>
+          {isEditting ? "編集" : "追加"}
+        </Text>
+      </TouchableOpacity>
+
+      <FlatList data={tasks} renderItem={renderTask} />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    padding: 40,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 20,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  input: {
+    borderWidth: 2,
+    borderColor: "#ccceee",
+    padding: 10,
+    marginBottom: 10,
+    borderRadius: 6,
+  },
+  saveButton: {
+    backgroundColor: "green",
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 20,
+  },
+  saveButtonText: {
+    color: "#fff",
+    textAlign: "center",
+  },
+  task: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+    padding: 10,
+  },
+  taskText: {
+    maxWidth: "80%",
+  },
+  buttonContainer: {
+    flexDirection: "row",
   },
 });
